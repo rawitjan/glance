@@ -49,7 +49,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Glance"
+      "shortcutName": "Glance",
+      "artifactName": "Glance-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Glance-Portable-${version}.${ext}"
     }
   },
   "keywords": [
