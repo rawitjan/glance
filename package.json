@@ -1,0 +1,87 @@
+{
+  "name": "glance",
+  "version": "1.0.0",
+  "description": "Glance - Desktop Todo Widget",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build:client": "vite build",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:client && npm run build:electron",
+    "start": "electron .",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && electron . --dev\"",
+    "package:dir": "npm run build && electron-builder --dir",
+    "package:portable": "npm run build && electron-builder --win portable",
+    "package:installer": "npm run build && electron-builder --win nsis",
+    "package": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.glance.widget",
+    "productName": "Glance",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Glance"
+    }
+  },
+  "keywords": [
+    "widget",
+    "todo",
+    "desktop",
+    "electron",
+    "glance"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@tabler/icons-react": "^3.40.0",
+    "clsx": "^2.1.1",
+    "medeo-font": "^1.0.0-rc.4.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwind-merge": "^3.5.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^25.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.0",
+    "autoprefixer": "^10.4.27",
+    "concurrently": "^9.2.1",
+    "electron": "^40.8.0",
+    "electron-builder": "^26.7.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.5",
+    "wait-on": "^9.0.4"
+  }
+}
