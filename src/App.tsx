@@ -12,6 +12,7 @@ import { FooterBar } from './components/FooterBar';
 import { Task, Priority, Language, Theme, TabType, PomodoroState, PomodoroMode, AppSettings } from './types';
 import { translations } from './i18n/translations';
 import { getDynamicThemeVariables } from './utils/theme';
+import { formatDeadlineText } from './utils/dateUtils';
 
 // Pleasant Web Audio synthesizer chime for Pomodoro finish
 function playChimeAudio() {
@@ -292,7 +293,7 @@ export const App: React.FC = () => {
   );
 
   // Task Actions
-  const handleAddTask = (title: string, priority: Priority) => {
+  const handleAddTask = (title: string, priority: Priority, dueDate?: string) => {
     const newTask: Task = {
       id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       title,
@@ -300,10 +301,18 @@ export const App: React.FC = () => {
       priority,
       completed: false,
       createdAt: Date.now(),
+      dueDate,
       subtasks: [],
       isExpanded: false,
     };
     saveTasks([newTask, ...tasks]);
+  };
+
+  const handleUpdateDueDate = (id: string, dueDate?: string) => {
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, dueDate } : t
+    );
+    saveTasks(updated);
   };
 
   const handleToggleComplete = (id: string) => {
@@ -520,6 +529,9 @@ export const App: React.FC = () => {
 
   const handleCopyFull = (task: Task) => {
     let full = `[${task.priority}] ${task.title}\n`;
+    if (task.dueDate) {
+      full += `📅 ${t.deadline}: ${formatDeadlineText(task.dueDate, settings.language)}\n`;
+    }
     if (task.description) full += `${task.description}\n`;
     if (task.subtasks && task.subtasks.length > 0) {
       full += task.subtasks
@@ -643,6 +655,7 @@ export const App: React.FC = () => {
                       onToggleComplete={handleToggleComplete}
                       onUpdateTitle={handleUpdateTitle}
                       onUpdateDescription={handleUpdateDescription}
+                      onUpdateDueDate={handleUpdateDueDate}
                       onToggleExpand={handleToggleExpand}
                       onToggleFocus={handleToggleFocus}
                       onDelete={handleDeleteTask}
@@ -693,6 +706,7 @@ export const App: React.FC = () => {
           onCopyTitle={handleCopyTitle}
           onCopyFull={handleCopyFull}
           onSetPriority={handleSetPriority}
+          onSetDueDate={handleUpdateDueDate}
           onToggleFocus={handleToggleFocus}
           onDelete={handleDeleteTask}
         />

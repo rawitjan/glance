@@ -16,6 +16,7 @@ export interface Task {
   completed: boolean;
   createdAt: number;
   completedAt?: number;
+  dueDate?: string;
   subtasks: Subtask[];
   isExpanded?: boolean;
 }
@@ -182,7 +183,8 @@ export class StorageManager {
       let mdContent = `\n### ${dateStr} - ${new Date().toLocaleTimeString()}\n`;
       for (const t of updatedToArchive) {
         const priorityBadge = `[${t.priority}]`;
-        mdContent += `- [x] **${priorityBadge} ${t.title}**\n`;
+        const deadlineBadge = t.dueDate ? ` (📅 ${t.dueDate})` : '';
+        mdContent += `- [x] **${priorityBadge} ${t.title}**${deadlineBadge}\n`;
         if (t.description) {
           const lines = t.description.split('\n').map(l => `  > ${l}`).join('\n');
           mdContent += `${lines}\n`;

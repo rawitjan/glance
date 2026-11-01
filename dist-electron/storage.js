@@ -133,7 +133,8 @@ class StorageManager {
             let mdContent = `\n### ${dateStr} - ${new Date().toLocaleTimeString()}\n`;
             for (const t of updatedToArchive) {
                 const priorityBadge = `[${t.priority}]`;
-                mdContent += `- [x] **${priorityBadge} ${t.title}**\n`;
+                const deadlineBadge = t.dueDate ? ` (📅 ${t.dueDate})` : '';
+                mdContent += `- [x] **${priorityBadge} ${t.title}**${deadlineBadge}\n`;
                 if (t.description) {
                     const lines = t.description.split('\n').map(l => `  > ${l}`).join('\n');
                     mdContent += `${lines}\n`;

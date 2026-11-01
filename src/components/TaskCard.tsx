@@ -8,10 +8,20 @@ import {
   IconPlus,
   IconX,
   IconExternalLink,
+  IconCalendar,
+  IconAlertCircle,
 } from '@tabler/icons-react';
 import { Task, Language, Priority } from '../types';
 import { translations } from '../i18n/translations';
 import { extractUrls } from '../utils/urlParser';
+import {
+  formatDeadlineText,
+  parseDeadline,
+  getDeadlineBadgeStyle,
+  getTodayDateString,
+  getTomorrowDateString,
+  getDateInDaysString,
+} from '../utils/dateUtils';
 
 interface TaskCardProps {
   task: Task;
@@ -20,6 +30,7 @@ interface TaskCardProps {
   onToggleComplete: (id: string) => void;
   onUpdateTitle: (id: string, newTitle: string) => void;
   onUpdateDescription: (id: string, newDesc: string) => void;
+  onUpdateDueDate?: (id: string, dueDate?: string) => void;
   onToggleExpand: (id: string) => void;
   onToggleFocus: (id: string) => void;
   onDelete: (id: string) => void;
@@ -37,6 +48,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onToggleComplete,
   onUpdateTitle,
   onUpdateDescription,
+  onUpdateDueDate,
   onToggleExpand,
   onToggleFocus,
   onDelete,
@@ -51,6 +63,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const [editTitle, setEditTitle] = useState(task.title);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
   const editInputRef = useRef<HTMLInputElement>(null);
+
+  // Deadline info
+  const deadlineInfo = parseDeadline(task.dueDate);
+  const deadlineText = task.dueDate ? formatDeadlineText(task.dueDate, language) : '';
+  const deadlineBadgeStyle = deadlineInfo
+    ? getDeadlineBadgeStyle(deadlineInfo, task.completed)
+    : '';
 
   useEffect(() => {
     setEditTitle(task.title);
@@ -170,18 +189,41 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </span>
           )}
 
-          {/* Subtask progress bar indicator (when collapsed and subtasks exist) */}
-          {totalSubtasks > 0 && !task.isExpanded && (
-            <div className="flex items-center gap-2 mt-1">
-              <div className="w-16 h-1 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full transition-all duration-300"
-                  style={{ width: `${subtaskProgress}%`, backgroundColor: 'var(--glance-accent)' }}
-                />
-              </div>
-              <span className="text-[10px] font-medium" style={{ color: 'var(--glance-accent-text)' }}>
-                [{completedSubtasks}/{totalSubtasks}]
-              </span>
+          {/* Meta row: Deadline pill & Subtask progress bar */}
+          {(task.dueDate || (totalSubtasks > 0 && !task.isExpanded)) && (
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              {task.dueDate && deadlineInfo && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleExpand(task.id);
+                  }}
+                  title={t.deadline}
+                  className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md border tracking-tight transition-all hover:scale-[1.02] cursor-pointer ${deadlineBadgeStyle}`}
+                >
+                  {deadlineInfo.isOverdue && !task.completed ? (
+                    <IconAlertCircle size={11} className="flex-shrink-0" />
+                  ) : (
+                    <IconCalendar size={11} className="flex-shrink-0" />
+                  )}
+                  <span>{deadlineText}</span>
+                </button>
+              )}
+
+              {totalSubtasks > 0 && !task.isExpanded && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-12 h-1 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full transition-all duration-300"
+                      style={{ width: `${subtaskProgress}%`, backgroundColor: 'var(--glance-accent)' }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-medium" style={{ color: 'var(--glance-accent-text)' }}>
+                    [{completedSubtasks}/{totalSubtasks}]
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -270,6 +312,119 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               ))}
             </div>
           )}
+
+          {/* Deadline Section */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--glance-text-main)]">
+              <span className="flex items-center gap-1.5">
+                <IconCalendar size={13} style={{ color: 'var(--glance-accent)' }} />
+                <span>{t.deadline}</span>
+                {task.dueDate && (
+                  <span className={`text-[10px] font-normal px-1.5 py-0.2 rounded-md border ${deadlineBadgeStyle}`}>
+                    {deadlineText}
+                  </span>
+                )}
+              </span>
+              {task.dueDate && onUpdateDueDate && (
+                <button
+                  type="button"
+                  onClick={() => onUpdateDueDate(task.id, undefined)}
+                  className="text-[10px] font-medium text-red-500 hover:text-red-600 dark:text-red-400 hover:underline flex items-center gap-0.5 transition-colors cursor-pointer"
+                >
+                  <IconX size={11} />
+                  <span>{t.removeDeadline}</span>
+                </button>
+              )}
+            </div>
+
+            {onUpdateDueDate && (
+              <div className="space-y-1.5">
+                {/* Quick Presets: [Сегодня] [Завтра] [+3 дня] */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const time = deadlineInfo?.timePart;
+                      onUpdateDueDate(task.id, time ? `${getTodayDateString()}T${time}` : getTodayDateString());
+                    }}
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-medium border transition-all cursor-pointer ${
+                      deadlineInfo?.isToday && !deadlineInfo?.isOverdue
+                        ? 'bg-[var(--glance-accent)] text-white border-[var(--glance-accent)] shadow-xs'
+                        : 'bg-[var(--glance-card-bg)] text-[var(--glance-text-main)] border-[var(--glance-accent-border-subtle)] hover:border-[var(--glance-accent)]'
+                    }`}
+                  >
+                    {t.today}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const time = deadlineInfo?.timePart;
+                      onUpdateDueDate(task.id, time ? `${getTomorrowDateString()}T${time}` : getTomorrowDateString());
+                    }}
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-medium border transition-all cursor-pointer ${
+                      deadlineInfo?.isTomorrow
+                        ? 'bg-[var(--glance-accent)] text-white border-[var(--glance-accent)] shadow-xs'
+                        : 'bg-[var(--glance-card-bg)] text-[var(--glance-text-main)] border-[var(--glance-accent-border-subtle)] hover:border-[var(--glance-accent)]'
+                    }`}
+                  >
+                    {t.tomorrow}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const time = deadlineInfo?.timePart;
+                      const in3 = getDateInDaysString(3);
+                      onUpdateDueDate(task.id, time ? `${in3}T${time}` : in3);
+                    }}
+                    className="px-2 py-0.5 rounded-lg text-[10px] font-medium border bg-[var(--glance-card-bg)] text-[var(--glance-text-main)] border-[var(--glance-accent-border-subtle)] hover:border-[var(--glance-accent)] transition-all cursor-pointer"
+                  >
+                    {t.inDays(3)}
+                  </button>
+                </div>
+
+                {/* Inputs: Date & optional Time */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <input
+                      type="date"
+                      value={deadlineInfo?.datePart || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (!val) {
+                          onUpdateDueDate(task.id, undefined);
+                        } else {
+                          const time = deadlineInfo?.timePart;
+                          onUpdateDueDate(task.id, time ? `${val}T${time}` : val);
+                        }
+                      }}
+                      className="w-full px-2 py-1 bg-[var(--glance-card-bg)] border border-[var(--glance-accent-border-subtle)] rounded-xl text-xs text-[var(--glance-text-main)] focus:outline-none focus:border-[var(--glance-accent)] cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="w-24">
+                    <input
+                      type="time"
+                      value={deadlineInfo?.timePart || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const baseDate = deadlineInfo?.datePart || getTodayDateString();
+                        if (!val) {
+                          onUpdateDueDate(task.id, baseDate);
+                        } else {
+                          onUpdateDueDate(task.id, `${baseDate}T${val}`);
+                        }
+                      }}
+                      title={t.timeLabel}
+                      placeholder="--:--"
+                      className="w-full px-2 py-1 bg-[var(--glance-card-bg)] border border-[var(--glance-accent-border-subtle)] rounded-xl text-xs text-[var(--glance-text-main)] focus:outline-none focus:border-[var(--glance-accent)] cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Subtasks (Mini-Checklist) */}
           <div className="space-y-1.5 pt-1">

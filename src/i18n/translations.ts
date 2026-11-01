@@ -63,6 +63,17 @@ export interface TranslationDict {
   pomodoroNoTaskLinked: string;
   pomodoroSoundLabel: string;
   pomodoroSettingsTitle: string;
+  deadline: string;
+  noDeadline: string;
+  setDeadline: string;
+  removeDeadline: string;
+  today: string;
+  tomorrow: string;
+  inDays: (days: number) => string;
+  overdue: string;
+  quickAddDeadline: string;
+  timeLabel: string;
+  contextDeadline: string;
 }
 
 export const translations: Record<Language, TranslationDict> = {
@@ -137,6 +148,17 @@ export const translations: Record<Language, TranslationDict> = {
     pomodoroNoTaskLinked: 'Байланбаған (тапсырмадан 🎯 басыңыз)',
     pomodoroSoundLabel: 'Дыбыстық сигнал',
     pomodoroSettingsTitle: 'Таймер параметрлері',
+    deadline: 'Мерзімі',
+    noDeadline: 'Мерзімсіз',
+    setDeadline: 'Мерзім таңдау',
+    removeDeadline: 'Мерзімді өшіру',
+    today: 'Бүгін',
+    tomorrow: 'Ертең',
+    inDays: (days) => `${days} күннен кейін`,
+    overdue: 'Мерзімі өтті',
+    quickAddDeadline: 'Мерзім қосу',
+    timeLabel: 'Уақыт',
+    contextDeadline: 'Мерзімі',
   },
   ru: {
     appName: 'glance',
@@ -209,6 +231,17 @@ export const translations: Record<Language, TranslationDict> = {
     pomodoroNoTaskLinked: 'Не привязана (нажмите 🎯 в списке задач)',
     pomodoroSoundLabel: 'Звуковой сигнал',
     pomodoroSettingsTitle: 'Параметры таймера',
+    deadline: 'Дедлайн',
+    noDeadline: 'Без дедлайна',
+    setDeadline: 'Установить дедлайн',
+    removeDeadline: 'Убрать дедлайн',
+    today: 'Сегодня',
+    tomorrow: 'Завтра',
+    inDays: (days) => `Через ${days} дн.`,
+    overdue: 'Просрочено',
+    quickAddDeadline: 'Добавить дедлайн',
+    timeLabel: 'Время',
+    contextDeadline: 'Дедлайн',
   },
   en: {
     appName: 'glance',
@@ -281,5 +314,16 @@ export const translations: Record<Language, TranslationDict> = {
     pomodoroNoTaskLinked: 'None linked (click 🎯 on any task)',
     pomodoroSoundLabel: 'Sound alert',
     pomodoroSettingsTitle: 'Timer parameters',
+    deadline: 'Deadline',
+    noDeadline: 'No deadline',
+    setDeadline: 'Set deadline',
+    removeDeadline: 'Remove deadline',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    inDays: (days) => `In ${days} days`,
+    overdue: 'Overdue',
+    quickAddDeadline: 'Add deadline',
+    timeLabel: 'Time',
+    contextDeadline: 'Deadline',
   },
 };

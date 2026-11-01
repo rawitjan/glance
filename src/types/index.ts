@@ -18,6 +18,7 @@ export interface Task {
   completed: boolean;
   createdAt: number;
   completedAt?: number;
+  dueDate?: string; // Optional deadline: YYYY-MM-DD or YYYY-MM-DDTHH:mm
   subtasks: Subtask[];
   isExpanded?: boolean;
 }

@@ -3,9 +3,15 @@ import {
   IconCopy,
   IconTarget,
   IconTrash,
+  IconCalendar,
 } from '@tabler/icons-react';
 import { Task, Language, Priority } from '../types';
 import { translations } from '../i18n/translations';
+import {
+  getTodayDateString,
+  getTomorrowDateString,
+  formatDeadlineText,
+} from '../utils/dateUtils';
 
 interface ContextMenuProps {
   task: Task;
@@ -15,6 +21,7 @@ interface ContextMenuProps {
   onCopyTitle: (task: Task) => void;
   onCopyFull: (task: Task) => void;
   onSetPriority: (taskId: string, priority: Priority) => void;
+  onSetDueDate?: (taskId: string, dueDate?: string) => void;
   onToggleFocus: (taskId: string) => void;
   onDelete: (taskId: string) => void;
 }
@@ -27,6 +34,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onCopyTitle,
   onCopyFull,
   onSetPriority,
+  onSetDueDate,
   onToggleFocus,
   onDelete,
 }) => {
@@ -53,8 +61,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   // Adjust position so it doesn't clip screen
   const style: React.CSSProperties = {
-    top: Math.min(position.y, window.innerHeight - 220),
-    left: Math.min(position.x, window.innerWidth - 200),
+    top: Math.min(position.y, window.innerHeight - 280),
+    left: Math.min(position.x, window.innerWidth - 210),
   };
 
   return (
@@ -74,7 +82,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           onCopyTitle(task);
           onClose();
         }}
-        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/40 text-left transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/40 text-left transition-colors cursor-pointer"
       >
         <IconCopy size={13} className="text-purple-600 dark:text-purple-400" />
         <span>{t.contextCopyTitle}</span>
@@ -86,7 +94,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           onCopyFull(task);
           onClose();
         }}
-        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/40 text-left transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/40 text-left transition-colors cursor-pointer"
       >
         <IconCopy size={13} className="text-purple-600 dark:text-purple-400" />
         <span>{t.contextCopyFull}</span>
@@ -98,7 +106,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           onToggleFocus(task.id);
           onClose();
         }}
-        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/40 text-left transition-colors"
+        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/40 text-left transition-colors cursor-pointer"
       >
         <IconTarget size={13} className="text-purple-600 dark:text-purple-400" />
         <span>{t.contextFocus}</span>
@@ -107,7 +115,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
       {/* Priority quick switch */}
       <div className="px-2.5 py-1.5 border-t border-purple-100 dark:border-purple-900/50 mt-1">
         <span className="block text-[10px] font-semibold text-purple-400 mb-1">
-          Басымдық / Приоритет
+          {settingsLanguagePriorityHeader(language)}
         </span>
         <div className="flex items-center gap-1.5">
           {(['P1', 'P2', 'P3'] as Priority[]).map((p) => (
@@ -117,7 +125,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
                 onSetPriority(task.id, p);
                 onClose();
               }}
-              className={`flex-1 py-1 rounded-lg text-center font-bold text-[10px] transition-all ${
+              className={`flex-1 py-1 rounded-lg text-center font-bold text-[10px] transition-all cursor-pointer ${
                 task.priority === p
                   ? 'bg-purple-600 text-white shadow-sm'
                   : 'bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-950/70 dark:text-purple-300 dark:hover:bg-purple-900/60'
@@ -129,6 +137,58 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
         </div>
       </div>
 
+      {/* Deadline quick switch */}
+      {onSetDueDate && (
+        <div className="px-2.5 py-1.5 border-t border-purple-100 dark:border-purple-900/50 mt-1">
+          <div className="flex items-center justify-between text-[10px] font-semibold text-purple-400 mb-1">
+            <span className="flex items-center gap-1">
+              <IconCalendar size={11} />
+              <span>{t.contextDeadline}</span>
+            </span>
+            {task.dueDate && (
+              <span className="text-[9px] text-purple-600 dark:text-purple-300 font-normal truncate max-w-[85px]">
+                {formatDeadlineText(task.dueDate, language)}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                onSetDueDate(task.id, getTodayDateString());
+                onClose();
+              }}
+              className="flex-1 py-1 rounded-lg text-center font-medium text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/70 dark:text-purple-300 dark:hover:bg-purple-900/60 transition-all cursor-pointer"
+            >
+              {t.today}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onSetDueDate(task.id, getTomorrowDateString());
+                onClose();
+              }}
+              className="flex-1 py-1 rounded-lg text-center font-medium text-[10px] bg-purple-50 hover:bg-purple-100 text-purple-700 dark:bg-purple-950/70 dark:text-purple-300 dark:hover:bg-purple-900/60 transition-all cursor-pointer"
+            >
+              {t.tomorrow}
+            </button>
+            {task.dueDate && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSetDueDate(task.id, undefined);
+                  onClose();
+                }}
+                title={t.removeDeadline}
+                className="px-2 py-1 rounded-lg text-center font-semibold text-[10px] bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-950/70 dark:text-red-300 dark:hover:bg-red-900/60 transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Delete */}
       <div className="border-t border-purple-100 dark:border-purple-900/50 pt-1 mt-1">
         <button
@@ -136,7 +196,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
             onDelete(task.id);
             onClose();
           }}
-          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/50 text-red-600 dark:text-red-400 text-left transition-colors"
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/50 text-red-600 dark:text-red-400 text-left transition-colors cursor-pointer"
         >
           <IconTrash size={13} />
           <span>{t.contextDelete}</span>
@@ -145,3 +205,9 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     </div>
   );
 };
+
+function settingsLanguagePriorityHeader(lang: Language): string {
+  if (lang === 'kk') return 'Басымдық';
+  if (lang === 'ru') return 'Приоритет';
+  return 'Priority';
+}

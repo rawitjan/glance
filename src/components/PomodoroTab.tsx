@@ -14,6 +14,7 @@ import {
 } from '@tabler/icons-react';
 import { PomodoroState, PomodoroMode, Language, AppSettings, Task } from '../types';
 import { translations } from '../i18n/translations';
+import { formatDeadlineText } from '../utils/dateUtils';
 
 interface PomodoroTabProps {
   pomodoro: PomodoroState;
@@ -99,9 +100,16 @@ export const PomodoroTab: React.FC<PomodoroTabProps> = ({
             >
               {t.pomodoroActiveTask}
             </span>
-            <span className="block text-xs font-medium truncate text-[var(--glance-text-main)]">
-              {focusedTask ? focusedTask.title : t.pomodoroNoTaskLinked}
-            </span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="block text-xs font-medium truncate text-[var(--glance-text-main)]">
+                {focusedTask ? focusedTask.title : t.pomodoroNoTaskLinked}
+              </span>
+              {focusedTask?.dueDate && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded-md bg-[var(--glance-accent-subtle)] text-[var(--glance-accent-text)] border border-[var(--glance-accent-border-subtle)] flex-shrink-0 font-medium">
+                  {formatDeadlineText(focusedTask.dueDate, language)}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
