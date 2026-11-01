@@ -40,6 +40,9 @@ export interface AppSettings {
   pomodoroSoundEnabled: boolean;
   windowX?: number;
   windowY?: number;
+  autoStart: boolean;
+  hideFromTaskbar: boolean;
+  desktopPinned: boolean;
 }
 
 export type PomodoroMode = 'work' | 'break' | 'longBreak';

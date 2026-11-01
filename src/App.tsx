@@ -66,6 +66,9 @@ export const App: React.FC = () => {
     pomodoroLongBreakMinutes: 15,
     pomodoroCyclesBeforeLongBreak: 4,
     pomodoroSoundEnabled: true,
+    autoStart: true,
+    hideFromTaskbar: true,
+    desktopPinned: true,
   });
 
   const [pomodoro, setPomodoro] = useState<PomodoroState>({

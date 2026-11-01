@@ -34,6 +34,25 @@ function createTrayIcon(): Electron.NativeImage {
   return nativeImage.createFromBuffer(buffer, { width: size, height: size });
 }
 
+function applyAutoStartSetting(enabled: boolean) {
+  try {
+    if (app.isPackaged) {
+      app.setLoginItemSettings({
+        openAtLogin: enabled,
+        path: process.execPath,
+      });
+    } else {
+      app.setLoginItemSettings({
+        openAtLogin: enabled,
+        path: process.execPath,
+        args: [path.resolve(process.argv[1])],
+      });
+    }
+  } catch (err) {
+    console.error('Failed to update login item settings:', err);
+  }
+}
+
 function createWindow() {
   storage = new StorageManager();
   const settings = storage.getSettings();
@@ -63,7 +82,7 @@ function createWindow() {
     hasShadow: false,
     resizable: false,
     alwaysOnTop: !!settings.alwaysOnTop,
-    skipTaskbar: false,
+    skipTaskbar: !!settings.hideFromTaskbar,
     icon: hasIcon ? iconPngPath : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -83,6 +102,21 @@ function createWindow() {
       }
     }, 400);
   });
+
+  // Keep visible on desktop: prevent minimization on Win+D if desktopPinned is enabled
+  mainWindow.on('minimize', () => {
+    const currentSettings = storage.getSettings();
+    if (currentSettings.desktopPinned) {
+      setTimeout(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.restore();
+        }
+      }, 60);
+    }
+  });
+
+  // Sync Windows auto-start setting
+  applyAutoStartSetting(!!settings.autoStart);
 
   // Dev server vs production build
   const distHtml = path.join(__dirname, '../dist/index.html');
@@ -151,6 +185,49 @@ function setWindowCollapsed(collapsed: boolean) {
   storage.saveSettings({ isCollapsed: collapsed });
 }
 
+function updateTrayMenu() {
+  if (!tray) return;
+  const settings = storage.getSettings();
+  const lang = settings.language || 'ru';
+
+  const labels = {
+    open: lang === 'ru' ? 'Открыть Glance' : lang === 'kk' ? 'Glance ашу (Қалпына келтіру)' : 'Open Glance',
+    quick: lang === 'ru' ? 'Новая задача (Ctrl+Alt+N)' : lang === 'kk' ? 'Жаңа тапсырма (Ctrl+Alt+N)' : 'New Task (Ctrl+Alt+N)',
+    exit: lang === 'ru' ? 'Выход' : lang === 'kk' ? 'Шығу' : 'Exit',
+  };
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: labels.open,
+      click: () => {
+        if (!mainWindow) return;
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+      },
+    },
+    {
+      label: labels.quick,
+      click: () => {
+        if (!mainWindow) return;
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+        mainWindow.webContents.send('quick-capture');
+      },
+    },
+    { type: 'separator' },
+    {
+      label: labels.exit,
+      click: () => {
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+}
+
 function setupTray() {
   const icoPath = path.join(__dirname, '../assets/icon.ico');
   const pngPath = path.join(__dirname, '../assets/icon.png');
@@ -165,36 +242,8 @@ function setupTray() {
   tray = new Tray(icon);
   tray.setToolTip('Glance — Desktop Todo Widget');
 
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: 'Glance ашу (Қалпына келтіру)',
-      click: () => {
-        if (!mainWindow) return;
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.show();
-        mainWindow.focus();
-      },
-    },
-    {
-      label: 'Жаңа тапсырма (Ctrl+Alt+N)',
-      click: () => {
-        if (!mainWindow) return;
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.show();
-        mainWindow.focus();
-        mainWindow.webContents.send('quick-capture');
-      },
-    },
-    { type: 'separator' },
-    {
-      label: 'Шығу (Exit)',
-      click: () => {
-        app.quit();
-      },
-    },
-  ]);
+  updateTrayMenu();
 
-  tray.setContextMenu(contextMenu);
   tray.on('click', () => {
     if (!mainWindow) return;
     if (mainWindow.isVisible()) {
@@ -228,7 +277,25 @@ ipcMain.handle('get-settings', async () => {
 });
 
 ipcMain.handle('save-settings', async (_event, settings: Partial<AppSettings>) => {
-  return storage.saveSettings(settings);
+  const result = storage.saveSettings(settings);
+
+  if (settings.autoStart !== undefined) {
+    applyAutoStartSetting(settings.autoStart);
+  }
+
+  if (settings.hideFromTaskbar !== undefined && mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.setSkipTaskbar(settings.hideFromTaskbar);
+  }
+
+  if (settings.alwaysOnTop !== undefined && mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.setAlwaysOnTop(settings.alwaysOnTop);
+  }
+
+  if (settings.language !== undefined) {
+    updateTrayMenu();
+  }
+
+  return result;
 });
 
 ipcMain.handle('set-window-collapsed', async (_event, collapsed: boolean) => {

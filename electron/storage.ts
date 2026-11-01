@@ -38,6 +38,9 @@ export interface AppSettings {
   windowY?: number;
   windowWidth?: number;
   windowHeight?: number;
+  autoStart: boolean;
+  hideFromTaskbar: boolean;
+  desktopPinned: boolean;
 }
 
 const defaultSettings: AppSettings = {
@@ -53,6 +56,9 @@ const defaultSettings: AppSettings = {
   pomodoroLongBreakMinutes: 15,
   pomodoroCyclesBeforeLongBreak: 4,
   pomodoroSoundEnabled: true,
+  autoStart: true,
+  hideFromTaskbar: true,
+  desktopPinned: true,
 };
 
 export class StorageManager {

@@ -49,6 +49,13 @@ export interface TranslationDict {
   themeDark: string;
   lockSection: string;
   lockSectionDesc: string;
+  widgetSection: string;
+  autoStartLabel: string;
+  autoStartDesc: string;
+  hideFromTaskbarLabel: string;
+  hideFromTaskbarDesc: string;
+  desktopPinnedLabel: string;
+  desktopPinnedDesc: string;
   accentColorSection: string;
   accentSystem: string;
   accentSystemDesc: string;
@@ -134,6 +141,13 @@ export const translations: Record<Language, TranslationDict> = {
     themeDark: 'Күңгірт',
     lockSection: 'Виджет орнын құлыптау',
     lockSectionDesc: 'Виджеттің кездейсоқ жылжып кетуін болдырмайды',
+    widgetSection: 'macOS виджет режимі',
+    autoStartLabel: 'Windows-пен бірге қосылу',
+    autoStartDesc: 'Компьютер қосылғанда автоматты түрде ашылады',
+    hideFromTaskbarLabel: 'Тапсырмалар тақтасынан жасыру',
+    hideFromTaskbarDesc: 'Төменгі панельде орын алмайды, экранда және трейде болады',
+    desktopPinnedLabel: 'Жұмыс үстеліне бекіту',
+    desktopPinnedDesc: 'Win+D басылғанда немесе терезелер жиналғанда жабылмайды',
     accentColorSection: 'Акценттік түс',
     accentSystem: 'Жүйе түсі (Windows)',
     accentSystemDesc: 'Windows жүйесінің ағымдағы түсіне бейімделеді',
@@ -217,6 +231,13 @@ export const translations: Record<Language, TranslationDict> = {
     themeDark: 'Тёмная',
     lockSection: 'Блокировка положения',
     lockSectionDesc: 'Защищает виджет от случайного сдвига курсором',
+    widgetSection: 'Режим виджета (как в macOS)',
+    autoStartLabel: 'Автозапуск вместе с Windows',
+    autoStartDesc: 'Виджет автоматически запускается при включении ПК',
+    hideFromTaskbarLabel: 'Скрыть из панели задач',
+    hideFromTaskbarDesc: 'Не занимает место в панели задач и Alt+Tab (доступ через трей)',
+    desktopPinnedLabel: 'Закрепить на рабочем столе',
+    desktopPinnedDesc: 'Не сворачивается при Win+D (Показать рабочий стол)',
     accentColorSection: 'Акцентный цвет',
     accentSystem: 'Как в системе (Windows)',
     accentSystemDesc: 'Использовать системный цвет оформления Windows',
@@ -300,6 +321,13 @@ export const translations: Record<Language, TranslationDict> = {
     themeDark: 'Dark',
     lockSection: 'Lock layout',
     lockSectionDesc: 'Prevents accidental dragging while working',
+    widgetSection: 'macOS Widget Mode',
+    autoStartLabel: 'Launch on Windows startup',
+    autoStartDesc: 'Glance launches automatically when your PC boots',
+    hideFromTaskbarLabel: 'Hide from Taskbar',
+    hideFromTaskbarDesc: 'Does not clutter the taskbar or Alt+Tab (in tray)',
+    desktopPinnedLabel: 'Pin to Desktop',
+    desktopPinnedDesc: 'Remains visible when Win+D (Show Desktop) is pressed',
     accentColorSection: 'Accent color',
     accentSystem: 'Windows Accent',
     accentSystemDesc: 'Matches your current Windows theme color',

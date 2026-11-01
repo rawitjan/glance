@@ -20,6 +20,9 @@ const defaultSettings = {
     pomodoroLongBreakMinutes: 15,
     pomodoroCyclesBeforeLongBreak: 4,
     pomodoroSoundEnabled: true,
+    autoStart: true,
+    hideFromTaskbar: true,
+    desktopPinned: true,
 };
 class StorageManager {
     dataDir;

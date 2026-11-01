@@ -8,6 +8,9 @@ import {
   IconDeviceDesktop,
   IconCheck,
   IconKeyboard,
+  IconRocket,
+  IconAppWindow,
+  IconSparkles,
 } from '@tabler/icons-react';
 import { Language, Theme, AppSettings } from '../types';
 import { translations } from '../i18n/translations';
@@ -184,7 +187,97 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </button>
           </div>
 
-          {/* 4. Accent Color Section */}
+          {/* 4. macOS Widget Mode Section */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <IconSparkles size={14} className="text-[var(--glance-accent)]" />
+              <label className="text-[11px] font-bold text-[var(--glance-text-muted)] uppercase tracking-wider">
+                {t.widgetSection}
+              </label>
+            </div>
+
+            <div className="space-y-2">
+              {/* Auto-start with Windows */}
+              <div className="p-3 bg-[var(--glance-accent-subtle)] rounded-2xl border border-[var(--glance-accent-border-subtle)] flex items-center justify-between">
+                <div className="pr-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-xs text-[var(--glance-text-main)]">
+                    <IconRocket size={14} className="text-[var(--glance-accent)]" />
+                    <span>{t.autoStartLabel}</span>
+                  </div>
+                  <p className="text-[10px] text-[var(--glance-text-muted)] mt-0.5 leading-snug">
+                    {t.autoStartDesc}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onUpdateSettings({ autoStart: !settings.autoStart })}
+                  style={settings.autoStart ? { backgroundColor: 'var(--glance-accent)' } : undefined}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    settings.autoStart ? '' : 'bg-black/20 dark:bg-white/20'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      settings.autoStart ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Desktop Pinned (Win+D) */}
+              <div className="p-3 bg-[var(--glance-accent-subtle)] rounded-2xl border border-[var(--glance-accent-border-subtle)] flex items-center justify-between">
+                <div className="pr-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-xs text-[var(--glance-text-main)]">
+                    <IconDeviceDesktop size={14} className="text-[var(--glance-accent)]" />
+                    <span>{t.desktopPinnedLabel}</span>
+                  </div>
+                  <p className="text-[10px] text-[var(--glance-text-muted)] mt-0.5 leading-snug">
+                    {t.desktopPinnedDesc}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onUpdateSettings({ desktopPinned: !settings.desktopPinned })}
+                  style={settings.desktopPinned ? { backgroundColor: 'var(--glance-accent)' } : undefined}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    settings.desktopPinned ? '' : 'bg-black/20 dark:bg-white/20'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      settings.desktopPinned ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Hide from Taskbar */}
+              <div className="p-3 bg-[var(--glance-accent-subtle)] rounded-2xl border border-[var(--glance-accent-border-subtle)] flex items-center justify-between">
+                <div className="pr-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-xs text-[var(--glance-text-main)]">
+                    <IconAppWindow size={14} className="text-[var(--glance-accent)]" />
+                    <span>{t.hideFromTaskbarLabel}</span>
+                  </div>
+                  <p className="text-[10px] text-[var(--glance-text-muted)] mt-0.5 leading-snug">
+                    {t.hideFromTaskbarDesc}
+                  </p>
+                </div>
+                <button
+                  onClick={() => onUpdateSettings({ hideFromTaskbar: !settings.hideFromTaskbar })}
+                  style={settings.hideFromTaskbar ? { backgroundColor: 'var(--glance-accent)' } : undefined}
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    settings.hideFromTaskbar ? '' : 'bg-black/20 dark:bg-white/20'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                      settings.hideFromTaskbar ? 'translate-x-4' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Accent Color Section */}
           <div className="space-y-2">
             <label className="block text-[11px] font-bold text-[var(--glance-text-muted)] uppercase tracking-wider">
               {t.accentColorSection}
